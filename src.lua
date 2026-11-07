@@ -2048,7 +2048,7 @@ do
     local Size = State.LogoSizeSet and State.LogoSize or Layout.MonoSize
     local SizeScale = Size / Layout.MonoSize
 
-    local Middle = State.Y + 20
+    local Middle = State.Y + 22
 
     if Logo and DrawPicture(Logo, HeadX - 6, Middle - State.LogoSize / 2, State.LogoSize, State.LogoSize, 629999, 1, State.LogoSize * 0.22) then
       HidePicture(State.Icon)
