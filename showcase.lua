@@ -1,153 +1,232 @@
-local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ars240/256-UI/refs/heads/main/src.lua"))()
+local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ars240/256-UI/refs/heads/main/src.lua"))() or UI256
+
+local Players = game:GetService("Players")
 
 local win = Lib:CreateWindow({
-    title = "256HUB",
-    subtitle = "256UI showcase",
-    accentA = Color3.fromRGB(255, 0, 46),
-    accentB = Color3.fromRGB(217, 130, 110),
-    size = Vector2.new(760, 600),
-    menuKey = "f4",
-    configFolder = "256UI_SHOWCASE",
-    configName = "default",
-    autoSave = true,
+    title    = "256UI",
+    subtitle = "auto",
+    size     = Vector2.new(700, 520),
+    menuKey  = "p",
     smartFps = false,
     checkboxStyle = true,
+    opacity  = 98,
+    logo     = "https://raw.githubusercontent.com/ars240/mm2-values/main/256-hub.png",
+    accentA  = Color3.fromRGB(255, 0, 46),
+    accentB  = Color3.fromRGB(217, 130, 110),
 })
 
-local function note(title, body, kind) Lib:Notify(title, body, 3, kind) end
+win:AddSettingsTab("gear")
+Lib:Notify("256UI", "Press P to toggle the menu", 4, "info")
 
-Lib:Category("Showcase")
-local home = win:Tab("Home", "house")
+Lib:Category("COMBAT")
+local combat = win:Tab("Combat", "sword")
 
-local welcome = home:Section("Welcome", "Left", "what this is")
-welcome:Paragraph("256UI", "the 256HUB interface library. every element below is live - click around, then open the cog for themes and configs.")
-welcome:Info("F4 opens/closes the menu, Ctrl+Space opens search")
-welcome:Divider("live")
-local clock = welcome:Label("time: --:--:--")
-local progress = welcome:Progressbar("Loading demo", 0)
+local aim = combat:Section("Aimbot", "Left", "silent + legit aim assist")
+local aimOn = aim:Toggle("Enabled", false, function(on)
+    Lib:Notify("Aimbot", on and "enabled" or "disabled", 2, on and "success" or "warning")
+end)
+aimOn:AddKeybind("e", "Hold")
+aimOn:AddColorpicker("FOV color", Color3.fromRGB(120, 255, 140))
 
-local notes = home:Section("Notifications", "Right", "every kind")
-notes:Button("Info", function() note("info", "this is an info notification", "info") end)
-    :AddButton("Success", function() note("success", "it worked", "success") end)
-notes:Button("Warning", function() note("warning", "careful with that", "warning") end)
-    :AddButton("Error", function() note("error", "something broke", "error") end)
-notes:Button("Dialog", function()
-    Lib:Dialog({
-        title = "Are you sure?",
-        text = "dialogs ask before doing something big.",
-        confirm = "Do it",
-        cancel = "Nope",
-        onConfirm = function() note("dialog", "confirmed", "success") end,
-        onCancel = function() note("dialog", "cancelled", "warning") end,
-    })
-end, "opens a confirm / cancel box")
+aim:Divider("Targeting")
+aim:Dropdown("Target part", {"Head"}, {"Head", "Torso", "Neck", "Random"}, false, function(v) end)
+aim:Dropdown("Hitboxes", {"Head"}, {"Head", "Torso", "Neck", "Stomach", "Legs"}, true, function(v) end, "multi-select", true)
+aim:Slider("FOV", 120, 1, 10, 500, "px", function(v) end)
+aim:Toggle("Sticky target", true, nil, "keep the same target while it stays in FOV")
 
-local feat = win:Tab("Features", "crosshairs")
+aim:Divider("Smoothing")
+aim:Slider("Smoothness", 0.30, 0.01, 0, 1, "", function(v) end)
+aim:Slider("Reaction time", 120, 5, 0, 400, "ms", function(v) end)
 
-local toggles = feat:Section("Toggles", "Left", "with keybinds, colors and children")
-local master = toggles:Toggle("Master switch", true, function(v) print("master", v) end, "turns the rows below on/off")
-master:AddKeybind("e", "Toggle", function(...) print("master bind", ...) end)
-toggles:Toggle("Child option", false, function(v) print("child", v) end):DependsOn(master)
-toggles:Toggle("Glow", true, function(v) print("glow", v) end)
-    :AddColorpicker("Glow color", Color3.fromRGB(255, 0, 46), function(c, a) print("glow color", c, a) end, 1)
-toggles:Toggle("Risky option", false, function(v) print("risky", v) end, "marked as risky"):SetRisk(true)
-toggles:Toggle("Locked option", true, function() end, "can't be changed"):SetLocked(true)
+aim:Divider("Safety")
+local wall = aim:Toggle("Wall check", true)
+aim:Toggle("Visible only", false):DependsOn(wall)
+aim:RangeSlider("Distance", 0, 150, 1, 0, 500, "m", function(lo, hi) end)
 
-local sliders = feat:Section("Sliders", "Right", "numbers and ranges")
-sliders:Slider("Walk speed", 16, 1, 0, 100, "", function(v) print("speed", v) end, "whole numbers")
-sliders:Slider("Smoothness", 0.5, 0.05, 0, 1, "", function(v) print("smooth", v) end, "decimals")
-sliders:Slider("Delay", 150, 10, 0, 1000, "ms", function(v) print("delay", v) end)
-sliders:RangeSlider("Distance", 50, 300, 5, 0, 1000, "studs", function(lo, hi) print("range", lo, hi) end)
+local trig = combat:Section("Triggerbot", "Right")
+trig:Toggle("Enabled", false):AddKeybind("t", "Toggle")
 
+trig:Divider("Timing")
+trig:Slider("Delay", 80, 1, 0, 500, "ms", function(v) end)
+trig:Slider("Hit chance", 100, 1, 1, 100, "%", function(v) end)
+
+trig:Divider("Filters")
+trig:Toggle("Team check", true)
+trig:Toggle("Wall check", true)
+trig:Toggle("Scoped only", false, nil, "fire only while aiming down sights")
+
+local wep = combat:Section("Weapon", "Right")
+wep:Toggle("No recoil", false)
+wep:Toggle("No spread", false)
+wep:Slider("Fire rate", 1.0, 0.1, 0.5, 3, "x", function(v) end)
+
+wep:Divider("Ammo")
+wep:Toggle("Fast reload", false)
+wep:Toggle("Infinite ammo", false, function(on) end):SetRisk():Tooltip("server-sided games will flag this")
+wep:Toggle("Kill aura", false):SetLocked(true):Tooltip("locked rows can't be changed")
+
+Lib:Category("VISUALS")
 local vis = win:Tab("Visuals", "eye")
-local esp = vis:Sub("ESP", "person")
-local world = vis:Sub("World", "sun")
 
-local espMain = esp:Section("ESP", "Left", "dropdowns")
-espMain:Dropdown("Box style", { "Corner" }, { "Full", "Corner", "3D" }, false, function(v) print("box", v[1]) end)
-espMain:Dropdown("Parts", { "Head", "Torso" }, { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }, true,
-    function(v) print("parts", table.concat(v, ",")) end, "multi-select, max 4, searchable", true, 4)
-espMain:Colorpicker("Box color", Color3.fromRGB(255, 0, 46), function(c, a) print("box color", c, a) end, 1)
-espMain:Colorpicker("Name color", Color3.fromRGB(255, 255, 255), function(c) print("name color", c) end)
+local esp = vis:Section("Player ESP", "Left", "see players through walls")
+esp:Toggle("Enabled", true):AddKeybind("h", "Toggle")
 
-local espText = esp:Section("Text", "Right", "text input")
-espText:Textbox("Custom tag", "", function(s) note("textbox", "you typed: " .. s, "info") end, "type, then press enter")
-espText:Toggle("Show distance", true, function(v) print("distance", v) end)
+esp:Divider("Boxes")
+esp:Dropdown("Box style", {"Corner"}, {"2D", "Corner", "3D", "Off"}, false, function(v) end)
+esp:Colorpicker("Box color", Color3.fromRGB(122, 134, 255), function(c, a) end, 1)
+esp:Colorpicker("Fill color", Color3.fromRGB(122, 134, 255), function(c, a) end, 0.35)
 
-local worldSec = world:Section("World", "Left", "sub-tab content")
-worldSec:Toggle("Fullbright", false, function(v) print("fullbright", v) end)
-worldSec:Slider("Time of day", 14, 0.5, 0, 24, "h", function(v) print("time", v) end)
+esp:Divider("Info")
+esp:Toggle("Name", true)
+esp:Toggle("Distance", true)
+esp:Toggle("Health bar", true)
+esp:Toggle("Weapon", false)
+esp:Slider("Text size", 13, 1, 8, 24, "px", function(v) end)
 
-Lib:Category("Extras")
-local live = win:Tab("Live", "speedometer")
+esp:Divider("Filters")
+esp:RangeSlider("Render distance", 0, 300, 5, 0, 1000, "m", function(lo, hi) end)
+esp:Toggle("Team check", true)
 
-local dyn = live:Section("Dynamic dropdown", "Left", "add / remove choices at runtime")
-local items = dyn:Dropdown("Items", {}, { "Apple", "Banana" }, false, function(v) print("item", v[1]) end)
-local n = 0
-dyn:Button("Add item", function()
-    n = n + 1
-    items:AddChoice("Item " .. n)
-    note("dropdown", "added item " .. n, "success")
-end):AddButton("Clear", function()
-    items:ClearChoices()
-    note("dropdown", "cleared", "warning")
-end)
+local hud = vis:Section("Overlay", "Left")
+hud:Label(function() return "Local time: " .. os.date("%X") end)
+hud:Toggle("Watermark", true)
+hud:Toggle("FPS counter", false)
+hud:Info("overlay drawings stay when the menu is closed")
 
-local binds = live:Section("Keybinds", "Right", "click to rebind, right-click for mode")
-binds:Keybind("Fly", "f", function(...) print("fly", ...) end, "toggle mode")
-binds:Keybind("Sprint", "leftshift", function(...) print("sprint", ...) end)
-binds:Divider("overlay")
-local overlayOn = false
-local box
-binds:Toggle("Stats overlay", false, function(v)
-    overlayOn = v
-    if box then box:SetVisible(v) end
-end, "a draggable info box on screen")
+local ch = vis:Section("Chams", "Right")
+ch:Toggle("Enabled", false)
+ch:Dropdown("Material", {"ForceField"}, {"ForceField", "Neon", "Flat"}, false, function(v) end)
+ch:Colorpicker("Visible color", Color3.fromRGB(140, 255, 160))
+ch:Colorpicker("Hidden color", Color3.fromRGB(255, 120, 120))
+ch:Slider("Transparency", 0.3, 0.05, 0, 1, "", function(v) end)
 
-box = Lib:CreateBox({ title = "256HUB stats", x = 20, y = 160, width = 190, visible = false })
-local fpsLine = box:Stat("FPS: --")
-local timeLine = box:Stat("Time: --")
-box:Text("bar = progress")
-local barLine = box:Bar(0)
+local world = vis:Section("World", "Right")
+world:Toggle("Fullbright", false, function(on) end)
+world:Slider("Time of day", 14, 0.1, 0, 24, "h", function(v) end)
+world:Toggle("No fog", false)
+world:Colorpicker("Ambient", Color3.fromRGB(255, 255, 255), function(c) end)
 
-local look = win:Tab("Themes", "star")
-local theme = look:Section("Presets", "Left", "one-click looks")
-local presets = Lib:ThemePresets()
-theme:Dropdown("Theme preset", { presets[1] }, presets, false, function(v)
-    Lib:ApplyThemePreset(v[1])
-    note("theme", "applied " .. tostring(v[1]), "success")
-end)
-theme:Dropdown("Background effect", { "Off" }, Lib:BackgroundEffects(), false, function(v) Lib:SetBackgroundEffect(v[1]) end)
+world:Divider("Extras")
+world:Dropdown("Weather", {"Clear"}, {"Clear", "Rain", "Snow"}, false, function(v) end)
+world:Toggle("No shadows", false)
 
-local accent = look:Section("Accent", "Right", "custom colours")
+Lib:Category("SYSTEM")
+local worldTab = win:Tab("World", "globe")
 
-local accA, accB = Color3.fromRGB(255, 0, 46), Color3.fromRGB(217, 130, 110)
-accent:Colorpicker("Accent A", accA, function(c) accA = c; Lib:SetAccent(accA, accB) end)
-accent:Colorpicker("Accent B", accB, function(c) accB = c; Lib:SetAccent(accA, accB) end)
-accent:Info("more in the cog: font, corner radius, opacity, configs")
+local wPlayers = worldTab:Sub("Players", "users")
+local plist = wPlayers:Section("Player list", "Left", "everyone in the server")
+plist:Toggle("Highlight friends", true)
+plist:Toggle("Highlight enemies", false)
+plist:Dropdown("Sort by", {"Distance"}, {"Distance", "Name", "Team", "Health"}, false, function(v) end)
+plist:Slider("List rows", 10, 1, 3, 30, "", function(v) end)
+plist:Divider("Actions")
+plist:Button("Refresh list", function() Lib:Notify("Players", "list refreshed", 1) end)
+   :AddButton("Copy IDs", function() Lib:Notify("Players", "copied", 1) end)
+plist:Toggle("Auto refresh", true, nil, "repopulate as players join or leave")
 
-win:AddSettingsTab("cog")
+local ptrack = wPlayers:Section("Tracking", "Right")
+ptrack:Toggle("Track nearest", false):AddKeybind("y", "Toggle")
+ptrack:Toggle("Off-screen arrows", true)
+ptrack:Colorpicker("Friend color", Color3.fromRGB(120, 255, 140))
+ptrack:Colorpicker("Enemy color", Color3.fromRGB(255, 110, 110))
+ptrack:Slider("Update rate", 30, 1, 5, 60, "hz", function(v) end)
+ptrack:Divider("Filters")
+ptrack:Toggle("Ignore teammates", true)
+ptrack:RangeSlider("Level range", 1, 50, 1, 1, 100, "", function(lo, hi) end)
+
+local wEnv = worldTab:Sub("Environment", "sun")
+local wl = wEnv:Section("Lighting", "Left", "time, brightness, fog")
+wl:Toggle("Fullbright", false, function(on) end)
+wl:Slider("Brightness", 2, 0.1, 0, 10, "", function(v) end)
+wl:Slider("Time of day", 14, 0.1, 0, 24, "h", function(v) end)
+wl:Toggle("No fog", false)
+wl:Toggle("No shadows", false)
+wl:Colorpicker("Ambient", Color3.fromRGB(255, 255, 255), function(c) end)
+
+local wt = wEnv:Section("Terrain", "Right")
+wt:Toggle("Wireframe", false)
+wt:Toggle("Remove grass", false)
+wt:Dropdown("Skybox", {"Default"}, {"Default", "Night", "Space", "Sunset"}, false, function(v) end)
+wt:Divider("Weather")
+wt:Dropdown("Weather", {"Clear"}, {"Clear", "Rain", "Snow", "Storm"}, false, function(v) end)
+wt:Slider("Wind", 0, 1, 0, 100, "%", function(v) end)
+wt:Toggle("Freeze time", false)
+
+local misc = win:Tab("Misc", "three-dots-horizontal")
+
+local mv = misc:Section("Movement", "Left")
+mv:Slider("Walk speed", 16, 1, 16, 250, "", function(v) end)
+mv:Slider("Jump power", 50, 1, 50, 300, "", function(v) end)
+
+mv:Divider("Air")
+local fly = mv:Toggle("Fly", false)
+fly:AddKeybind("g", "Toggle", function(on) Lib:Notify("Fly", on and "on" or "off", 1) end)
+mv:Slider("Fly speed", 60, 5, 10, 300, "", function(v) end):DependsOn(fly)
+mv:Toggle("Infinite jump", false)
+
+mv:Divider("Ground")
+mv:Toggle("Bunny hop", false)
+mv:Toggle("No fall damage", false)
+mv:Keybind("Panic key", "k", function(key) Lib:Notify("Panic", "rebound to " .. tostring(key), 2) end)
+
+local srv = misc:Section("Server", "Right")
+srv:Label(function() return "Players online: " .. #Players:GetPlayers() end)
+srv:Button("Rejoin", function() Lib:Notify("Server", "rejoining...", 2) end)
+   :AddButton("Server hop", function() Lib:Notify("Server", "hopping...", 2) end)
+srv:Dropdown("Teleport to", {}, function()
+    local names = {}
+    for _, p in ipairs(Players:GetPlayers()) do names[#names + 1] = tostring(p.Name) end
+    return names
+end, false, function(v) if v[1] then Lib:Notify("Teleport", "to " .. v[1], 2) end end, "auto-refreshes: new players appear without reloading", true)
+
+srv:Divider("Automation")
+srv:Toggle("Anti afk", true)
+srv:Toggle("Auto rejoin", false, nil, "rejoin the same server after a kick")
+
+srv:Divider("Danger zone")
+srv:Button("Unload menu", function()
+    Lib:Dialog({
+        title     = "Unload?",
+        text      = "Remove the 256UI menu from the game?",
+        confirm   = "Unload",
+        onConfirm = function() Lib:Destroy() end,
+    })
+end):SetRisk()
+
+local share = misc:Section("Sharing", "Right")
+share:Textbox("Webhook URL", "", function(text) end)
+share:Textbox("Status text", "playing", function(text) end)
+share:Button("Test webhook", function() Lib:Notify("Webhook", "test sent", 2, "success") end)
+
+share:Divider("Config")
+share:Info("configs save from the Settings tab")
+
+local about = misc:Section("About", "Left")
+about:Paragraph("256UI", "the 256HUB interface library")
+local load = about:Progressbar("Loading assets", 0)
+about:Space(6)
+about:Button("Error test", function() Lib:Notify("Error", "something went wrong", 2, "error") end)
+
+local mine = win:SettingsSection("Showcase", "Right")
+mine:Toggle("Streamer mode", false)
+mine:Slider("UI scale", 100, 5, 50, 150, "%", function(v) end)
+
+local box = Lib:CreateBox({ title = "Stats", position = Vector2.new(24, 150), width = 190 })
+box:Stat("Kills: 0")
+local ping = box:Stat("Ping: 42 ms")
+local bar = box:Bar(0.7)
 
 task.spawn(function()
-    local frames, last, fps, t = 0, os.clock(), 0, 0
+    local t = 0
     while _G["256UI"] == Lib do
-        frames = frames + 1
-        local now = os.clock()
-        if now - last >= 1 then
-            fps, frames, last = frames, 0, now
-        end
-        t = (t + 0.02) % 1
+        t = (t + 1) % 101
         pcall(function()
-            clock:SetText("time: " .. os.date("%H:%M:%S"))
-            progress:Set(math.floor(t * 100))
-            if overlayOn then
-                fpsLine.Value = "FPS: " .. fps
-                timeLine.Value = "Time: " .. os.date("%H:%M:%S")
-                barLine.Value = t
-            end
+            load:Set(t)
+            bar.Value = t / 100
+            ping.Value = "Ping: " .. math.random(35, 60) .. " ms"
         end)
-        task.wait(0.05)
+        task.wait(0.1)
     end
 end)
 
-Lib:Notify("256UI", "showcase loaded - F4 to toggle", 4, "success")
+Lib:Notify("Loaded", "256UI showcase ready", 3, "success")
