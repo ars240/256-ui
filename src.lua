@@ -2048,9 +2048,9 @@ do
     local Size = State.LogoSizeSet and State.LogoSize or Layout.MonoSize
     local SizeScale = Size / Layout.MonoSize
 
-    local Middle = State.Y + (State.Subtitle ~= "" and 30 or 18)
+    local Middle = State.Y + 22
 
-    if Logo and DrawPicture(Logo, HeadX, Middle - State.LogoSize / 2, State.LogoSize, State.LogoSize, 629999, 1, State.LogoSize * 0.22) then
+    if Logo and DrawPicture(Logo, HeadX - 4, Middle - State.LogoSize / 2, State.LogoSize, State.LogoSize, 629999, 1, State.LogoSize * 0.22) then
       HidePicture(State.Icon)
 
       HeadX = HeadX + State.LogoSize + 9
@@ -2058,7 +2058,7 @@ do
       HeadX = State.X + 44
     else
       local Letter = string.upper(string.sub(State.Title, 1, 1))
-      local Cx = State.X + 16 + Size / 2
+      local Cx = State.X + 16 + Size / 2 - 4
 
       DrawRect(Cx - Size / 2, Middle - Size / 2, Size, Size, Theme.Accent, 61, Layout.MonoRadius * SizeScale, 0.16)
       DrawStroke(Cx - Size / 2, Middle - Size / 2, Size, Size, Theme.Text, 61, Layout.MonoRadius * SizeScale, Alpha.CardStroke)
