@@ -11,6 +11,7 @@ local win = Lib:CreateWindow({
     checkboxStyle = true,
     opacity  = 98,
     logo     = "https://raw.githubusercontent.com/ars240/mm2-values/main/256-hub.png",
+    logoSize = 36,
     accentA  = Color3.fromRGB(255, 0, 46),
     accentB  = Color3.fromRGB(217, 130, 110),
 })
